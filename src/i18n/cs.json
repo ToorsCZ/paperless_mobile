@@ -241,5 +241,20 @@
     "search.printDocsButton": "Vytisknout",
     "search.printDocsSent": "Dokumentů odesláno na tiskárnu: {count}",
     "search.printDocsNone": "Pro tuto pozici nejsou v doc manageru žádné dokumenty k tisku.",
-    "search.printDocsError": "Tisk dokumentace se nezdařil: {msg}"
+    "search.printDocsError": "Tisk dokumentace se nezdařil: {msg}",
+    "admin.labelsTab": "Štítky",
+    "labelsAdmin.hint": "Znovu vytiskne štítky na krabice (Hardware) u vrat, která už byla spuštěna. Bez QR štítku a dokumentace.",
+    "labelsAdmin.salesOrder": "Prodejní objednávka",
+    "labelsAdmin.position": "Pozice",
+    "labelsAdmin.load": "Načíst",
+    "labelsAdmin.noDoors": "U této zakázky zatím nebyla spuštěna žádná vrata.",
+    "labelsAdmin.doors": "Vrata",
+    "labelsAdmin.door": "Vrata {cycle}/{total}",
+    "labelsAdmin.doorInfo": "spuštěno {started} · vytištěno štítků: {count}",
+    "labelsAdmin.force": "Vytisknout vše znovu",
+    "labelsAdmin.forceHint": "I štítky, které už vytištěné byly – např. po změně dat v CSV.",
+    "labelsAdmin.printMissing": "Vytisknout chybějící štítky",
+    "labelsAdmin.printAll": "Vytisknout všechny štítky znovu",
+    "labelsAdmin.printed": "Vytištěno štítků: {count}",
+    "labelsAdmin.nothingMissing": "Žádné štítky nechyběly – nic se netisklo."
 }

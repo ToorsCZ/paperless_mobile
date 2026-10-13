@@ -241,5 +241,20 @@
     "search.printDocsButton": "Надрукувати",
     "search.printDocsSent": "Документів надіслано на принтер: {count}",
     "search.printDocsNone": "У doc manager немає документів для друку для цієї позиції.",
-    "search.printDocsError": "Не вдалося надрукувати документацію: {msg}"
+    "search.printDocsError": "Не вдалося надрукувати документацію: {msg}",
+    "admin.labelsTab": "Етикетки",
+    "labelsAdmin.hint": "Повторно друкує етикетки на коробки (Hardware) для воріт, які вже запущено. Без QR-етикетки та документації.",
+    "labelsAdmin.salesOrder": "Замовлення на продаж",
+    "labelsAdmin.position": "Позиція",
+    "labelsAdmin.load": "Завантажити",
+    "labelsAdmin.noDoors": "Жодні ворота цього замовлення ще не запущено.",
+    "labelsAdmin.doors": "Ворота",
+    "labelsAdmin.door": "Ворота {cycle}/{total}",
+    "labelsAdmin.doorInfo": "запущено {started} · надруковано етикеток: {count}",
+    "labelsAdmin.force": "Надрукувати все знову",
+    "labelsAdmin.forceHint": "Також етикетки, які вже були надруковані — напр. після зміни даних у CSV.",
+    "labelsAdmin.printMissing": "Надрукувати відсутні етикетки",
+    "labelsAdmin.printAll": "Надрукувати всі етикетки знову",
+    "labelsAdmin.printed": "Надруковано етикеток: {count}",
+    "labelsAdmin.nothingMissing": "Жодних етикеток не бракувало — нічого не надруковано."
 }

@@ -241,5 +241,20 @@
     "search.printDocsButton": "Print",
     "search.printDocsSent": "Documents sent to the printer: {count}",
     "search.printDocsNone": "doc manager has no documents to print for this position.",
-    "search.printDocsError": "Failed to print documentation: {msg}"
+    "search.printDocsError": "Failed to print documentation: {msg}",
+    "admin.labelsTab": "Labels",
+    "labelsAdmin.hint": "Prints the box labels (Hardware) again for doors that have already started. No QR sticker or documentation.",
+    "labelsAdmin.salesOrder": "Sales order",
+    "labelsAdmin.position": "Position",
+    "labelsAdmin.load": "Load",
+    "labelsAdmin.noDoors": "No door of this order has started yet.",
+    "labelsAdmin.doors": "Doors",
+    "labelsAdmin.door": "Door {cycle}/{total}",
+    "labelsAdmin.doorInfo": "started {started} · labels printed: {count}",
+    "labelsAdmin.force": "Print everything again",
+    "labelsAdmin.forceHint": "Including labels that already printed — e.g. after the CSV data changed.",
+    "labelsAdmin.printMissing": "Print missing labels",
+    "labelsAdmin.printAll": "Print all labels again",
+    "labelsAdmin.printed": "Labels printed: {count}",
+    "labelsAdmin.nothingMissing": "No labels were missing — nothing printed."
 }

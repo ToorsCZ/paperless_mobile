@@ -8,6 +8,7 @@ import { EmployeeAdmin } from "../../src/types";
 import { t } from "../../src/i18n";
 import { getAdminPin, clearAdminPin } from "../../src/services/adminAuth";
 import BaanCodesAdmin from "../../src/components/BaanCodesAdmin";
+import LabelReprintAdmin from "../../src/components/LabelReprintAdmin";
 
 /**
  * The hidden employee-admin screen — reached only via a long-press + PIN
@@ -43,16 +44,18 @@ export default function EmployeeAdminScreen() {
     // Three tabs: the employees in every "who did this" picker, the quality
     // engineers who sign off QC with their own PIN (same endpoint shape
     // under a different base, plus a PIN), and the prep checklist's BAAN
-    // code list — that one is its own panel (BaanCodesAdmin), not a name list.
-    const [kind, setKind] = useState<"employees" | "engineers" | "baan">("employees");
+    // code list — that one is its own panel (BaanCodesAdmin), not a name list —
+    // and reprinting an order's box labels (LabelReprintAdmin).
+    const [kind, setKind] = useState<"employees" | "engineers" | "baan" | "labels">("employees");
     const isEngineers = kind === "engineers";
-    const isBaan = kind === "baan";
+    // The two panels that aren't a name list.
+    const isPanel = kind === "baan" || kind === "labels";
     const base = isEngineers ? "/employees/admin/quality-engineers" : "/employees/admin";
 
     const { data: employees, isLoading, isError } = useQuery<EmployeeAdmin[]>({
         queryKey: ["employees-admin", kind, pin],
         queryFn: async () => (await apiClient.get(base, { headers: authHeaders })).data,
-        enabled: !!pin && !isBaan,
+        enabled: !!pin && !isPanel,
     });
 
     const onError = (error: any) => {
@@ -122,39 +125,47 @@ export default function EmployeeAdminScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={goBack} />
                 <Appbar.Content title={t("admin.title")} />
-                {!isBaan && <Appbar.Action icon="plus" onPress={openCreateModal} />}
+                {!isPanel && <Appbar.Action icon="plus" onPress={openCreateModal} />}
             </Appbar.Header>
 
             <SegmentedButtons
                 value={kind}
-                onValueChange={(v) => setKind(v as "employees" | "engineers" | "baan")}
+                onValueChange={(v) => setKind(v as "employees" | "engineers" | "baan" | "labels")}
                 style={styles.kindToggle}
                 buttons={[
                     { value: "employees", label: t("admin.employeesTab") },
                     { value: "engineers", label: t("admin.engineersTab") },
                     { value: "baan", label: t("admin.baanTab") },
+                    { value: "labels", label: t("admin.labelsTab") },
                 ]}
             />
 
-            {isBaan && pin && (
+            {kind === "labels" && pin && (
+                <LabelReprintAdmin
+                    authHeaders={authHeaders}
+                    onMessage={(message) => setSnackbar({ visible: true, message })}
+                />
+            )}
+
+            {kind === "baan" && pin && (
                 <BaanCodesAdmin
                     authHeaders={authHeaders}
                     onMessage={(message) => setSnackbar({ visible: true, message })}
                 />
             )}
 
-            {!isBaan && isLoading && (
+            {!isPanel && isLoading && (
                 <View style={styles.center}>
                     <ActivityIndicator size="large" />
                 </View>
             )}
-            {!isBaan && isError && (
+            {!isPanel && isError && (
                 <View style={styles.center}>
                     <Text>{t("admin.loadError")}</Text>
                 </View>
             )}
 
-            {!isBaan && !isLoading && !isError && (
+            {!isPanel && !isLoading && !isError && (
                 <FlatList
                     data={employees}
                     keyExtractor={(item) => String(item.id)}
