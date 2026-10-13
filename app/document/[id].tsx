@@ -94,12 +94,18 @@ export default function DocumentViewerScreen() {
     // ── prep-station "print label" action ──
     // Needs this document's projectNumber/position, which the route params
     // don't carry — fetched from its own record.
-    const { data: docMeta } = useQuery({
+    // Declared before docMeta: while either check dialog is open, docMeta is
+    // re-read every few seconds — several people check cycles of the same
+    // order at once, and each must see the others' checks as they happen.
+    const [checkModalVisible, setCheckModalVisible] = useState(false);
+    const [qcModalVisible, setQcModalVisible] = useState(false);
+    const { data: docMeta, refetch: refetchDocMeta } = useQuery({
         queryKey: ["document-meta", id],
         queryFn: async () => {
             const response = await apiClient.get(`/files/${id}`);
             return response.data as DocumentMeta;
         },
+        refetchInterval: checkModalVisible || qcModalVisible ? 4000 : false,
     });
     // The first prep-label print is only reachable from the
     // preparation queue tab (see app/(tabs)/prep-queue.tsx) — a worker
@@ -134,7 +140,6 @@ export default function DocumentViewerScreen() {
     // The quality engineer unlocks it with their personal PIN — see
     // QcCheckModal.
     const canQcCheck = canCheck && !!docMeta?.completion?.workstation;
-    const [qcModalVisible, setQcModalVisible] = useState(false);
 
     // ── Manual completion (hidden) ──
     // For orders that can't be completed through P2L: long-press the
@@ -204,22 +209,33 @@ export default function DocumentViewerScreen() {
     // (unlike prep labels, which are deliberately restricted to the
     // prep-queue flow), so this stays reachable from wherever a document is
     // opened.
-    const [checkModalVisible, setCheckModalVisible] = useState(false);
     const [checkSelectedEmployee, setCheckSelectedEmployee] = useState<string | null>(null);
     const [selectedCycleIndex, setSelectedCycleIndex] = useState<number | null>(null);
     const [checkStatusChoice, setCheckStatusChoice] = useState<CheckStatus>("ok");
     const [checkNote, setCheckNote] = useState("");
     const { data: checkEmployees } = useEmployees(checkModalVisible);
 
-    const openCheckModal = () => {
+    // Cycles already checked when the dialog opened. A cycle checked by
+    // someone else WHILE it's open is "checked meanwhile": the dialog says
+    // who did it and confirming it again has to be deliberate.
+    const [checkedAtOpen, setCheckedAtOpen] = useState<Set<number>>(new Set());
+
+    const openCheckModal = async () => {
+        setCheckModalVisible(true);
+        // Fresh data first — someone may have checked a cycle seconds ago.
+        const cycles = (await refetchDocMeta()).data?.cycles ?? docMeta?.cycles ?? [];
+        setCheckedAtOpen(new Set(cycles.filter((c) => c.checked).map((c) => c.cycleIndex)));
         // Default to the first still-unchecked cycle so the common case
         // (checking off boxes one by one) needs no extra taps — falls back
         // to cycle 1 if everything's already checked (re-checking is
         // allowed).
-        const firstUnchecked = docMeta?.cycles?.find((c) => !c.checked);
-        setSelectedCycleIndex(firstUnchecked?.cycleIndex ?? docMeta?.cycles?.[0]?.cycleIndex ?? 1);
-        setCheckModalVisible(true);
+        const firstUnchecked = cycles.find((c) => !c.checked);
+        setSelectedCycleIndex(firstUnchecked?.cycleIndex ?? cycles[0]?.cycleIndex ?? 1);
     };
+
+    const selectedCycle = docMeta?.cycles?.find((c) => c.cycleIndex === selectedCycleIndex);
+    const checkedMeanwhile =
+        !!selectedCycle?.checked && selectedCycleIndex !== null && !checkedAtOpen.has(selectedCycleIndex);
 
     const closeCheckModal = () => {
         setCheckModalVisible(false);
@@ -230,7 +246,9 @@ export default function DocumentViewerScreen() {
     };
 
     const submitCheck = useMutation({
-        mutationFn: async () => {
+        // sawNotice: the "checked meanwhile" notice was on screen when the
+        // button was pressed, so a re-check is what the user wants.
+        mutationFn: async (sawNotice: boolean) => {
             if (
                 !docMeta?.project_number ||
                 !docMeta?.position ||
@@ -239,6 +257,18 @@ export default function DocumentViewerScreen() {
                 !selectedCycleIndex
             )
                 return;
+            // Last-moment check: if someone checked this cycle in the
+            // seconds since the last refresh, don't record it twice — the
+            // refreshed dialog now shows who did.
+            if (!sawNotice && !checkedAtOpen.has(selectedCycleIndex)) {
+                const fresh = (await refetchDocMeta()).data?.cycles?.find((c) => c.cycleIndex === selectedCycleIndex);
+                if (fresh?.checked) {
+                    throw Object.assign(
+                        new Error(t("document.checkedMeanwhile", { cycle: selectedCycleIndex, name: fresh.employeeName ?? "?" })),
+                        { meanwhile: true },
+                    );
+                }
+            }
             await apiClient.post("/workstations/order-check", {
                 projectNumber: docMeta.project_number,
                 position: docMeta.position,
@@ -261,6 +291,7 @@ export default function DocumentViewerScreen() {
             queryClient.invalidateQueries({ queryKey: ["documents-overview"] });
         },
         onError: (error: any) => {
+            if (error?.meanwhile) return setSnackbar({ visible: true, message: error.message });
             const msg = error?.response?.data?.error || error.message;
             setSnackbar({ visible: true, message: t("document.checkError", { msg }) });
         },
@@ -582,6 +613,21 @@ window.ReactNativeWebView={postMessage:function(m){window.parent.postMessage(JSO
                 {/* Full history of the selected cycle — every completion,
                     check and QC round with notes, e.g. what QC found that
                     this re-check is now verifying. */}
+                {checkedMeanwhile && (
+                    <Text variant="bodyMedium" style={{ color: "#c62828", fontWeight: "600", marginBottom: 8 }}>
+                        {t("document.checkedMeanwhileNotice", {
+                            cycle: selectedCycleIndex,
+                            name: selectedCycle?.employeeName ?? "?",
+                            time: selectedCycle?.checkedAt ?
+                                new Date(selectedCycle.checkedAt).toLocaleTimeString("cs-CZ", {
+                                    timeZone: "Europe/Prague",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })
+                            :   "",
+                        })}
+                    </Text>
+                )}
                 {docMeta?.cycles?.find((c) => c.cycleIndex === selectedCycleIndex)?.awaitingFix && (
                     <Text variant="bodyMedium" style={{ color: "#c62828", fontWeight: "600", marginBottom: 8 }}>
                         {t("document.checkAwaitingFix")}
@@ -645,11 +691,13 @@ window.ReactNativeWebView={postMessage:function(m){window.parent.postMessage(JSO
                     ]}
                     activeOpacity={0.8}
                     disabled={!checkSelectedEmployee || !selectedCycleIndex || submitCheck.isPending}
-                    onPress={() => submitCheck.mutate()}>
+                    onPress={() => submitCheck.mutate(checkedMeanwhile)}>
                     {submitCheck.isPending ?
                         <ActivityIndicator size="small" color="#fff" />
                     :   <Text style={styles.confirmBtnText}>
-                            {selectedCycleIndex ?
+                            {checkedMeanwhile ?
+                                t("document.checkConfirmCycleAgain", { cycle: selectedCycleIndex })
+                            : selectedCycleIndex ?
                                 t("document.checkConfirmCycle", { cycle: selectedCycleIndex })
                             :   t("document.checkConfirm")}
                         </Text>

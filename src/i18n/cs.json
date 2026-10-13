@@ -256,5 +256,8 @@
     "labelsAdmin.printMissing": "Vytisknout chybějící štítky",
     "labelsAdmin.printAll": "Vytisknout všechny štítky znovu",
     "labelsAdmin.printed": "Vytištěno štítků: {count}",
-    "labelsAdmin.nothingMissing": "Žádné štítky nechyběly – nic se netisklo."
+    "labelsAdmin.nothingMissing": "Žádné štítky nechyběly – nic se netisklo.",
+    "document.checkedMeanwhile": "Cyklus {cycle} mezitím zkontroloval(a) {name} – kontrola se neuložila. Vyberte jiný cyklus.",
+    "document.checkedMeanwhileNotice": "Cyklus {cycle} mezitím zkontroloval(a) {name} ({time}).",
+    "document.checkConfirmCycleAgain": "Zkontrolovat cyklus {cycle} znovu"
 }

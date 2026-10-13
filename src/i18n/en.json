@@ -256,5 +256,8 @@
     "labelsAdmin.printMissing": "Print missing labels",
     "labelsAdmin.printAll": "Print all labels again",
     "labelsAdmin.printed": "Labels printed: {count}",
-    "labelsAdmin.nothingMissing": "No labels were missing — nothing printed."
+    "labelsAdmin.nothingMissing": "No labels were missing — nothing printed.",
+    "document.checkedMeanwhile": "Cycle {cycle} was just checked by {name} — your check was not saved. Pick another cycle.",
+    "document.checkedMeanwhileNotice": "Cycle {cycle} was checked meanwhile by {name} ({time}).",
+    "document.checkConfirmCycleAgain": "Check cycle {cycle} again"
 }

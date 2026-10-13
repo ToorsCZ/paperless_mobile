@@ -256,5 +256,8 @@
     "labelsAdmin.printMissing": "Надрукувати відсутні етикетки",
     "labelsAdmin.printAll": "Надрукувати всі етикетки знову",
     "labelsAdmin.printed": "Надруковано етикеток: {count}",
-    "labelsAdmin.nothingMissing": "Жодних етикеток не бракувало — нічого не надруковано."
+    "labelsAdmin.nothingMissing": "Жодних етикеток не бракувало — нічого не надруковано.",
+    "document.checkedMeanwhile": "Цикл {cycle} щойно перевірив(ла) {name} — вашу перевірку не збережено. Виберіть інший цикл.",
+    "document.checkedMeanwhileNotice": "Цикл {cycle} тим часом перевірив(ла) {name} ({time}).",
+    "document.checkConfirmCycleAgain": "Перевірити цикл {cycle} знову"
 }
