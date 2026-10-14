@@ -28,6 +28,9 @@ interface PrepQueueItem {
     locked?: boolean;
     product_order: string | null;
     hardware_type: string | null;
+    // Every type the item counts as — a hybrid (GSL rail) is both Indy and
+    // Guardy. Older servers don't send it; hardwareTypes() falls back.
+    hardware_types?: string[];
 }
 
 function formatDate(iso: string): string {
@@ -40,6 +43,10 @@ function formatDate(iso: string): string {
         day: "numeric",
         month: "numeric",
     });
+}
+
+function hardwareTypes(item: PrepQueueItem): string[] {
+    return item.hardware_types ?? (item.hardware_type ? [item.hardware_type] : []);
 }
 
 function dateKey(iso: string): string {
@@ -147,7 +154,7 @@ export default function PrepQueueScreen() {
 
     const hardwareTypeOptions = useMemo(() => {
         return Array.from(
-            new Set(items.map((i) => i.hardware_type).filter((ht): ht is string => !!ht)),
+            new Set(items.flatMap(hardwareTypes)),
         ).sort();
     }, [items]);
 
@@ -156,7 +163,7 @@ export default function PrepQueueScreen() {
             if (selectedDate && (!item.planned_date || dateKey(item.planned_date) !== selectedDate)) return false;
             if (selectedWorkplaces.size > 0 && !selectedWorkplaces.has(item.workplace)) return false;
             if (selectedHardwareTypes.size > 0) {
-                if (!item.hardware_type || !selectedHardwareTypes.has(item.hardware_type)) return false;
+                if (!hardwareTypes(item).some((ht) => selectedHardwareTypes.has(ht))) return false;
             }
             return true;
         });
@@ -387,11 +394,11 @@ function PrepQueueCard({
                         {isLocked && (
                             <Ionicons name="lock-closed" size={18} color="#c62828" />
                         )}
-                        {item.hardware_type && (
-                            <Chip mode="flat" compact style={styles.hardwareTypeChip} textStyle={styles.chipText}>
-                                {item.hardware_type}
+                        {hardwareTypes(item).map((ht) => (
+                            <Chip key={ht} mode="flat" compact style={styles.hardwareTypeChip} textStyle={styles.chipText}>
+                                {ht}
                             </Chip>
-                        )}
+                        ))}
                         <Chip mode="flat" compact style={isLocked ? styles.workplaceChipLocked : styles.workplaceChip} textStyle={styles.chipText}>
                             {item.workplace}
                         </Chip>
