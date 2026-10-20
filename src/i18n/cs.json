@@ -243,11 +243,11 @@
     "search.printDocsNone": "Pro tuto pozici nejsou v doc manageru žádné dokumenty k tisku.",
     "search.printDocsError": "Tisk dokumentace se nezdařil: {msg}",
     "admin.labelsTab": "Štítky",
-    "labelsAdmin.hint": "Znovu vytiskne štítky na krabice (Hardware) u vrat, která už byla spuštěna. Bez QR štítku a dokumentace.",
+    "labelsAdmin.hint": "Znovu vytiskne štítky na krabice u vrat, která už byla spuštěna. Bez QR štítku a dokumentace.",
     "labelsAdmin.salesOrder": "Prodejní objednávka",
     "labelsAdmin.position": "Pozice",
     "labelsAdmin.load": "Načíst",
-    "labelsAdmin.noDoors": "U této zakázky zatím nebyla spuštěna žádná vrata.",
+    "labelsAdmin.noDoors": "U této zakázky zatím nebylo na tomto pracovišti nic spuštěno.",
     "labelsAdmin.doors": "Vrata",
     "labelsAdmin.door": "Vrata {cycle}/{total}",
     "labelsAdmin.doorInfo": "spuštěno {started} · vytištěno štítků: {count}",
@@ -259,5 +259,8 @@
     "labelsAdmin.nothingMissing": "Žádné štítky nechyběly – nic se netisklo.",
     "document.checkedMeanwhile": "Cyklus {cycle} mezitím zkontroloval(a) {name} – kontrola se neuložila. Vyberte jiný cyklus.",
     "document.checkedMeanwhileNotice": "Cyklus {cycle} mezitím zkontroloval(a) {name} ({time}).",
-    "document.checkConfirmCycleAgain": "Zkontrolovat cyklus {cycle} znovu"
+    "document.checkConfirmCycleAgain": "Zkontrolovat cyklus {cycle} znovu",
+    "labelsAdmin.hintMotor": "Znovu vytiskne štítky Motoru u dávek, které už byly spuštěny. Bez dokumentace.",
+    "labelsAdmin.batches": "Dávky",
+    "labelsAdmin.batch": "Dávka {cycle}/{total}"
 }

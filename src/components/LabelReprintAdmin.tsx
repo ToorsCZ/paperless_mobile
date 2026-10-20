@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from "react-native";
-import { Text, TextInput, Switch } from "react-native-paper";
+import { Text, TextInput, Switch, SegmentedButtons } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "../api/client";
@@ -24,8 +24,8 @@ const fmt = (iso: string) =>
     });
 
 /**
- * Admin panel for printing an order's Hardware box labels again. P2L only
- * signals each door once, so this replays the label printing for doors that
+ * Admin panel for printing an order's box labels again, at Hardware (per
+ * door) or Motor (per batch). P2L only signals each door/batch once, so this replays the label printing for doors that
  * have already started (see the backend's reprintOrderLabels):
  *  - by default only labels that never printed come out;
  *  - "print everything again" prints every label of the chosen doors from
@@ -39,6 +39,7 @@ export default function LabelReprintAdmin({
     authHeaders: Record<string, string>;
     onMessage: (message: string) => void;
 }) {
+    const [workplace, setWorkplace] = useState<"Hardware" | "Motor">("Hardware");
     const [salesOrder, setSalesOrder] = useState("");
     const [position, setPosition] = useState("");
     const [doors, setDoors] = useState<Door[] | null>(null);
@@ -50,7 +51,7 @@ export default function LabelReprintAdmin({
         mutationFn: async () =>
             (
                 await apiClient.get("/workstations/label-status", {
-                    params: { salesOrder: salesOrder.trim(), position: position.trim() },
+                    params: { salesOrder: salesOrder.trim(), position: position.trim(), workplace },
                     headers: authHeaders,
                 })
             ).data as { doors: Door[] },
@@ -69,6 +70,7 @@ export default function LabelReprintAdmin({
                     {
                         salesOrder: salesOrder.trim(),
                         position: position.trim(),
+                        workplace,
                         force,
                         cycles: [...selected].sort((a, b) => a - b),
                     },
@@ -97,8 +99,17 @@ export default function LabelReprintAdmin({
 
     return (
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+            <SegmentedButtons
+                value={workplace}
+                onValueChange={(v) => (setWorkplace(v as "Hardware" | "Motor"), setDoors(null))}
+                style={{ marginBottom: 12 }}
+                buttons={[
+                    { value: "Hardware", label: "Hardware" },
+                    { value: "Motor", label: "Motor" },
+                ]}
+            />
             <Text variant="bodySmall" style={styles.hint}>
-                {t("labelsAdmin.hint")}
+                {t(workplace === "Motor" ? "labelsAdmin.hintMotor" : "labelsAdmin.hint")}
             </Text>
             <View style={styles.row}>
                 <TextInput
@@ -135,7 +146,7 @@ export default function LabelReprintAdmin({
             {doors && doors.length > 0 && (
                 <>
                     <Text variant="titleSmall" style={{ marginTop: 16, marginBottom: 6 }}>
-                        {t("labelsAdmin.doors")}
+                        {t(workplace === "Motor" ? "labelsAdmin.batches" : "labelsAdmin.doors")}
                     </Text>
                     {doors.map((d) => {
                         const on = selected.has(d.cycle);
@@ -148,7 +159,10 @@ export default function LabelReprintAdmin({
                                 />
                                 <View style={{ flex: 1, marginLeft: 10 }}>
                                     <Text variant="bodyMedium" style={{ fontWeight: "bold" }}>
-                                        {t("labelsAdmin.door", { cycle: d.cycle, total: d.totalCycles })}
+                                        {t(workplace === "Motor" ? "labelsAdmin.batch" : "labelsAdmin.door", {
+                                            cycle: d.cycle,
+                                            total: d.totalCycles,
+                                        })}
                                     </Text>
                                     <Text variant="bodySmall" style={{ color: "#777" }}>
                                         {t("labelsAdmin.doorInfo", { started: fmt(d.startedAt), count: d.printed })}

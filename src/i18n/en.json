@@ -243,11 +243,11 @@
     "search.printDocsNone": "doc manager has no documents to print for this position.",
     "search.printDocsError": "Failed to print documentation: {msg}",
     "admin.labelsTab": "Labels",
-    "labelsAdmin.hint": "Prints the box labels (Hardware) again for doors that have already started. No QR sticker or documentation.",
+    "labelsAdmin.hint": "Prints the box labels again for doors that have already started. No QR sticker or documentation.",
     "labelsAdmin.salesOrder": "Sales order",
     "labelsAdmin.position": "Position",
     "labelsAdmin.load": "Load",
-    "labelsAdmin.noDoors": "No door of this order has started yet.",
+    "labelsAdmin.noDoors": "Nothing of this order has started at this workplace yet.",
     "labelsAdmin.doors": "Doors",
     "labelsAdmin.door": "Door {cycle}/{total}",
     "labelsAdmin.doorInfo": "started {started} · labels printed: {count}",
@@ -259,5 +259,8 @@
     "labelsAdmin.nothingMissing": "No labels were missing — nothing printed.",
     "document.checkedMeanwhile": "Cycle {cycle} was just checked by {name} — your check was not saved. Pick another cycle.",
     "document.checkedMeanwhileNotice": "Cycle {cycle} was checked meanwhile by {name} ({time}).",
-    "document.checkConfirmCycleAgain": "Check cycle {cycle} again"
+    "document.checkConfirmCycleAgain": "Check cycle {cycle} again",
+    "labelsAdmin.hintMotor": "Prints the Motor labels again for batches that have already started. No documentation.",
+    "labelsAdmin.batches": "Batches",
+    "labelsAdmin.batch": "Batch {cycle}/{total}"
 }
