@@ -6,6 +6,8 @@
     "workstations.retry": "Повторити",
     "workstations.busy": "ЗАЙНЯТО",
     "workstations.free": "ВІЛЬНО",
+    "workstations.locked": "Замовлення заблоковане в MasterPlan — може не закритися в ERP",
+    "workstations.lockedStarted": "УВАГА: {workplace} запустив заблоковане замовлення {project}/{position} (MasterPlan)",
     "workstations.label.type": "Тип:",
     "workstations.type.production": "Виробництво",
     "workstations.type.NP_SPARE": "Склад запчастин",

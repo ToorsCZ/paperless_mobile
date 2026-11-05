@@ -57,6 +57,8 @@ src/
 - **Workstations** (`(tabs)/index.tsx`) — cards for each tracked workstation
   with current order + cycle progress, live-updated via Socket.IO
   (`workstation-order-update`, `workstations-updated`) rather than polling.
+  A station's order locked in MasterPlan gets a red card with a lock
+  banner, and a red warning pops up when PTL starts one (`order-locked`).
 - **Search BOM** — find an order by number or by scanning its label with
   the tablet camera, then open a BOM (a picker when a position has several
   types). The printer icon on a position prints the order's documentation

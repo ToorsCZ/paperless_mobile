@@ -6,6 +6,8 @@
     "workstations.retry": "Retry",
     "workstations.busy": "BUSY",
     "workstations.free": "FREE",
+    "workstations.locked": "Order is locked in MasterPlan — it may not close in ERP",
+    "workstations.lockedStarted": "WARNING: {workplace} started locked order {project}/{position} (MasterPlan)",
     "workstations.label.type": "Type:",
     "workstations.type.production": "Production",
     "workstations.type.NP_SPARE": "Spare parts stock",

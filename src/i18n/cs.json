@@ -6,6 +6,8 @@
     "workstations.retry": "Znovu",
     "workstations.busy": "OBSAZENO",
     "workstations.free": "VOLNO",
+    "workstations.locked": "Zakázka je zamčená v MasterPlanu — nemusí jít uzavřít v ERP",
+    "workstations.lockedStarted": "POZOR: {workplace} spustil zamčenou zakázku {project}/{position} (MasterPlan)",
     "workstations.label.type": "Typ:",
     "workstations.type.production": "Výroba",
     "workstations.type.NP_SPARE": "ND sklad",

@@ -59,6 +59,8 @@ export interface Workstation {
   last_polled_at: string | null;
   cycle_index: number | null;
   total_cycles: number | null;
+  // Current order locked in MasterPlan (older servers don't send it).
+  locked?: boolean;
 }
 
 export interface RevisionOverview {

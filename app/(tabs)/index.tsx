@@ -14,6 +14,7 @@ export default function WorkstationsScreen() {
     const router = useRouter();
     const navigation = useNavigation();
     const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
+    const [lockWarning, setLockWarning] = useState<string | null>(null);
 
     const {
         data: workstations,
@@ -42,11 +43,18 @@ export default function WorkstationsScreen() {
     // until the next scheduled poll tick or a manual pull-to-refresh.
     useEffect(() => {
         const onOrderUpdate = () => refetch();
+        // PTL started an order that's locked in MasterPlan.
+        const onLocked = (e: { workplace: string; projectNumber: string; position: string }) =>
+            setLockWarning(
+                t("workstations.lockedStarted", { workplace: e.workplace, project: e.projectNumber, position: e.position }),
+            );
         socket.on("workstation-order-update", onOrderUpdate);
         socket.on("workstations-updated", onOrderUpdate);
+        socket.on("order-locked", onLocked);
         return () => {
             socket.off("workstation-order-update", onOrderUpdate);
             socket.off("workstations-updated", onOrderUpdate);
+            socket.off("order-locked", onLocked);
         };
     }, [refetch]);
 
@@ -139,7 +147,11 @@ export default function WorkstationsScreen() {
                             disabled={importPbom.isPending}
                             activeOpacity={0.7}>
                             <Card
-                                style={[styles.card, item.current_order_id && { borderColor: "#ff5100" }]}
+                                style={[
+                                    styles.card,
+                                    item.current_order_id && { borderColor: "#ff5100" },
+                                    item.locked && styles.cardLocked,
+                                ]}
                                 mode="outlined">
                                 <Card.Title
                                     title={item.name}
@@ -163,6 +175,14 @@ export default function WorkstationsScreen() {
                                 {item.current_order_data ?
                                     <Card.Content>
                                         <Divider style={{ marginBottom: 12 }} />
+                                        {item.locked && (
+                                            <View style={styles.lockedBanner}>
+                                                <Ionicons name="lock-closed" size={16} color="#c62828" />
+                                                <Text variant="bodyMedium" style={styles.lockedBannerText}>
+                                                    {t("workstations.locked")}
+                                                </Text>
+                                            </View>
+                                        )}
                                         <Text variant="titleMedium">{item.current_order_data.productDesc}</Text>
                                         {item.current_order_data.type ?
                                             <View style={styles.detailRow}>
@@ -254,6 +274,14 @@ export default function WorkstationsScreen() {
             <Snackbar visible={snackbar.visible} onDismiss={() => setSnackbar({ ...snackbar, visible: false })}>
                 {snackbar.message}
             </Snackbar>
+            <Snackbar
+                visible={!!lockWarning}
+                onDismiss={() => setLockWarning(null)}
+                duration={30000}
+                style={styles.lockWarning}
+                action={{ label: "OK", textColor: "#fff", onPress: () => setLockWarning(null) }}>
+                {lockWarning}
+            </Snackbar>
         </View>
     );
 }
@@ -263,6 +291,18 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: "center", alignItems: "center" },
     list: { padding: 12 },
     card: { marginBottom: 12 },
+    cardLocked: { borderColor: "#c62828", borderWidth: 2 },
+    lockedBanner: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        backgroundColor: "#ffebee",
+        borderRadius: 6,
+        padding: 8,
+        marginBottom: 8,
+    },
+    lockedBannerText: { color: "#c62828", fontWeight: "600", flex: 1 },
+    lockWarning: { backgroundColor: "#c62828" },
     cardTitle: { fontWeight: "bold" },
     detailRow: { flexDirection: "row", marginTop: 4 },
     label: { fontWeight: "600", width: 100, color: "#666" },
