@@ -65,8 +65,9 @@ src/
   (complete / with changes / missing part / incomplete), check and QC
   progress and "awaiting fix"; filters for each.
 - **Prep queue** — orders to prepare ahead of production, filterable by
-  date, workplace and hardware type; locked orders (Masterplan) can't be
-  prepared. "Open BOM" reviews the document first; the *print without
+  date, workplace, hardware type and TOX (doors toxed together instead of
+  screwed — Masterplan `den_zpracovani` 8, shown as a TOX chip); locked
+  orders (Masterplan) can't be prepared. "Open BOM" reviews the document first; the *print without
   opening PDF* switch goes straight to the print dialog.
 - **Stats** — completed / checked products per day. Long-pressing the day
   title + admin PIN opens the hidden **admin** screen (employees, quality

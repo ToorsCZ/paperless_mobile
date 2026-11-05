@@ -31,6 +31,8 @@ interface PrepQueueItem {
     // Every type the item counts as — a hybrid (GSL rail) is both Indy and
     // Guardy. Older servers don't send it; hardwareTypes() falls back.
     hardware_types?: string[];
+    // Masterplan den_zpracovani 8 — the door is toxed together, not screwed.
+    tox?: boolean;
 }
 
 function formatDate(iso: string): string {
@@ -62,6 +64,7 @@ export default function PrepQueueScreen() {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedWorkplaces, setSelectedWorkplaces] = useState<Set<string>>(new Set());
     const [selectedHardwareTypes, setSelectedHardwareTypes] = useState<Set<string>>(new Set());
+    const [toxOnly, setToxOnly] = useState(false);
     const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
 
     // "Direct print" mode skips opening the PDF entirely — Prepare opens
@@ -165,9 +168,11 @@ export default function PrepQueueScreen() {
             if (selectedHardwareTypes.size > 0) {
                 if (!hardwareTypes(item).some((ht) => selectedHardwareTypes.has(ht))) return false;
             }
+            if (toxOnly && !item.tox) return false;
             return true;
         });
-    }, [items, selectedDate, selectedWorkplaces, selectedHardwareTypes]);
+    }, [items, selectedDate, selectedWorkplaces, selectedHardwareTypes, toxOnly]);
+    const hasTox = items.some((i) => i.tox);
 
     const toggleWorkplace = (wp: string) => {
         setSelectedWorkplaces((prev) => {
@@ -263,7 +268,7 @@ export default function PrepQueueScreen() {
                     ))}
                 </View>
             )}
-            {hardwareTypeOptions.length > 0 && (
+            {(hardwareTypeOptions.length > 0 || hasTox) && (
                 <View style={styles.filterRow}>
                     {hardwareTypeOptions.map((type) => (
                         <Chip
@@ -283,6 +288,16 @@ export default function PrepQueueScreen() {
                             {type}
                         </Chip>
                     ))}
+                    {(hasTox || toxOnly) && (
+                        <Chip
+                            mode={toxOnly ? "flat" : "outlined"}
+                            onPress={() => setToxOnly((v) => !v)}
+                            selected={toxOnly}
+                            style={[styles.filterChip, toxOnly && styles.filterChipActive]}
+                            textStyle={toxOnly ? styles.filterChipTextSelected : styles.filterChipText}>
+                            TOX
+                        </Chip>
+                    )}
                 </View>
             )}
             <Divider />
@@ -399,6 +414,11 @@ function PrepQueueCard({
                                 {ht}
                             </Chip>
                         ))}
+                        {item.tox && (
+                            <Chip mode="flat" compact style={styles.toxChip} textStyle={styles.chipText}>
+                                TOX
+                            </Chip>
+                        )}
                         <Chip mode="flat" compact style={isLocked ? styles.workplaceChipLocked : styles.workplaceChip} textStyle={styles.chipText}>
                             {item.workplace}
                         </Chip>
@@ -507,6 +527,7 @@ const styles = StyleSheet.create({
     workplaceChip: { backgroundColor: "#607d8b" },
     workplaceChipLocked: { backgroundColor: "#c62828" },
     hardwareTypeChip: { backgroundColor: "#00695c" },
+    toxChip: { backgroundColor: "#6a1b9a" },
     chipText: { fontSize: 11, color: "#fff" },
     lockedBanner: {
         flexDirection: "row",
