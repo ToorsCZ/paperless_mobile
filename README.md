@@ -70,7 +70,8 @@ src/
   date, workplace, hardware type and TOX (doors toxed together instead of
   screwed — Masterplan `den_zpracovani` 8, shown as a TOX chip); locked
   orders (Masterplan) can't be prepared. *Unlocked* shows only orders that
-  were locked and no longer are, with the unlock time when known. "Open BOM" reviews the document first; the *print without
+  were locked and no longer are, most recently unlocked first, with the
+  unlock time when known. "Open BOM" reviews the document first; the *print without
   opening PDF* switch goes straight to the print dialog.
 - **Stats** — completed / checked products per day. Long-pressing the day
   title + admin PIN opens the hidden **admin** screen (employees, quality

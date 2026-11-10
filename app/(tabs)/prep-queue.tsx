@@ -166,7 +166,7 @@ export default function PrepQueueScreen() {
     }, [items]);
 
     const filteredItems = useMemo(() => {
-        return items.filter((item) => {
+        const list = items.filter((item) => {
             if (selectedDate && (!item.planned_date || dateKey(item.planned_date) !== selectedDate)) return false;
             if (selectedWorkplaces.size > 0 && !selectedWorkplaces.has(item.workplace)) return false;
             if (selectedHardwareTypes.size > 0) {
@@ -176,6 +176,10 @@ export default function PrepQueueScreen() {
             if (unlockedOnly && !item.unlocked) return false;
             return true;
         });
+        // Unlocked filter: most recently unlocked first, unknown time last (stable sort keeps plan order).
+        return unlockedOnly ?
+                list.sort((a, b) => (b.unlocked_at ?? "").localeCompare(a.unlocked_at ?? ""))
+            :   list;
     }, [items, selectedDate, selectedWorkplaces, selectedHardwareTypes, toxOnly, unlockedOnly]);
     const hasTox = items.some((i) => i.tox);
     const hasUnlocked = items.some((i) => i.unlocked);
