@@ -33,6 +33,9 @@ interface PrepQueueItem {
     hardware_types?: string[];
     // Masterplan den_zpracovani 8 — the door is toxed together, not screwed.
     tox?: boolean;
+    // Was locked in Masterplan and no longer is; unlocked_at null = time unknown.
+    unlocked?: boolean;
+    unlocked_at?: string | null;
 }
 
 function formatDate(iso: string): string {
@@ -65,6 +68,7 @@ export default function PrepQueueScreen() {
     const [selectedWorkplaces, setSelectedWorkplaces] = useState<Set<string>>(new Set());
     const [selectedHardwareTypes, setSelectedHardwareTypes] = useState<Set<string>>(new Set());
     const [toxOnly, setToxOnly] = useState(false);
+    const [unlockedOnly, setUnlockedOnly] = useState(false);
     const [snackbar, setSnackbar] = useState({ visible: false, message: "" });
 
     // "Direct print" mode skips opening the PDF entirely — Prepare opens
@@ -169,10 +173,12 @@ export default function PrepQueueScreen() {
                 if (!hardwareTypes(item).some((ht) => selectedHardwareTypes.has(ht))) return false;
             }
             if (toxOnly && !item.tox) return false;
+            if (unlockedOnly && !item.unlocked) return false;
             return true;
         });
-    }, [items, selectedDate, selectedWorkplaces, selectedHardwareTypes, toxOnly]);
+    }, [items, selectedDate, selectedWorkplaces, selectedHardwareTypes, toxOnly, unlockedOnly]);
     const hasTox = items.some((i) => i.tox);
+    const hasUnlocked = items.some((i) => i.unlocked);
 
     const toggleWorkplace = (wp: string) => {
         setSelectedWorkplaces((prev) => {
@@ -268,7 +274,7 @@ export default function PrepQueueScreen() {
                     ))}
                 </View>
             )}
-            {(hardwareTypeOptions.length > 0 || hasTox) && (
+            {(hardwareTypeOptions.length > 0 || hasTox || hasUnlocked || unlockedOnly) && (
                 <View style={styles.filterRow}>
                     {hardwareTypeOptions.map((type) => (
                         <Chip
@@ -296,6 +302,17 @@ export default function PrepQueueScreen() {
                             style={[styles.filterChip, toxOnly && styles.filterChipActive]}
                             textStyle={toxOnly ? styles.filterChipTextSelected : styles.filterChipText}>
                             TOX
+                        </Chip>
+                    )}
+                    {(hasUnlocked || unlockedOnly) && (
+                        <Chip
+                            mode={unlockedOnly ? "flat" : "outlined"}
+                            icon="lock-open-variant-outline"
+                            onPress={() => setUnlockedOnly((v) => !v)}
+                            selected={unlockedOnly}
+                            style={[styles.filterChip, unlockedOnly && styles.filterChipActive]}
+                            textStyle={unlockedOnly ? styles.filterChipTextSelected : styles.filterChipText}>
+                            {t("prepQueue.filterUnlocked")}
                         </Chip>
                     )}
                 </View>
@@ -432,6 +449,24 @@ function PrepQueueCard({
                         <Ionicons name="lock-closed" size={14} color="#c62828" />
                         <Text variant="bodySmall" style={styles.lockedBannerText}>
                             {t("prepQueue.locked")}
+                        </Text>
+                    </View>
+                )}
+                {item.unlocked && (
+                    <View style={styles.metaRow}>
+                        <Text variant="bodySmall" style={styles.metaLabel}>
+                            {t("prepQueue.unlockedAt")}
+                        </Text>
+                        <Text variant="bodySmall">
+                            {item.unlocked_at ?
+                                new Date(item.unlocked_at).toLocaleString("cs-CZ", {
+                                    timeZone: "Europe/Prague",
+                                    day: "numeric",
+                                    month: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })
+                            :   t("prepQueue.unlockedUnknown")}
                         </Text>
                     </View>
                 )}
